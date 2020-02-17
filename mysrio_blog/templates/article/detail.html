@@ -1,0 +1,61 @@
+<!-- extends表明此页面继承自 base.html 文件 -->
+{% extends "base.html" %}
+{% load staticfiles %}
+
+<!-- 写入 base.html 中定义的 title -->
+{% block title %}
+    文章详情
+{% endblock title %}
+
+<!-- 写入 base.html 中定义的 content -->
+{% block content %}
+
+<!-- 文章详情 -->
+<div class="container">
+    <div class="row">
+        <!-- 标题及作者 -->
+        <h1 class="col-12 mt-4 mb-4">{{ article.title }}</h1>
+        <div class="col-12 alert alert-success">作者：{{ article.author }}
+            <a href="#" onclick="confirm_safe_delete()"> 删除文章 </a>
+            <!-- 新增一个隐藏的表单 -->
+            <form
+                  style="display:none;"
+                  id="safe_delete"
+                  action="{% url 'article:article_safe_delete' article.id %}"
+                  method="POST">
+                {% csrf_token %}
+                <button type="submit">发送</button>
+            </form>
+            <a href="{% url 'article:article_update' article.id %}"> 编辑文章 </a>
+        </div>
+
+
+        <!-- 文章正文 -->
+        <div class="col-12">
+            <p>{{ article.body | safe}}</p>
+            <!--Django出于安全的考虑，会将输出的HTML代码进行转义，这使得article.body中渲染的HTML文本无法正常显示。管道符|是Django中过滤器的写法，-->
+            <!--而|safe就类似给article.body贴了一个标签，表示这一段字符不需要进行转义了。-->
+        </div>
+    </div>
+</div>
+
+
+<script>
+    // 删除文章的函数
+    function confirm_safe_delete() {
+        // 调用layer弹窗组件
+        layer.open({
+            // 弹窗标题
+            title: "确认删除",
+            content: "确认删除这篇文章吗？",
+            yes: function(index, layero) {
+                $('form#safe_delete button').click();   // 不是直接跳转url了
+                layer.close(index);
+            },
+        })
+    }
+</script>
+
+
+
+{% endblock content %}

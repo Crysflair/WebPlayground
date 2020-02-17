@@ -1,0 +1,40 @@
+<!-- extends表明此页面继承自 base.html 文件 -->
+{% extends "base.html" %}
+{% load staticfiles %}
+
+
+<!-- 写入 base.html 中定义的 title -->
+{% block title %} 写文章 {% endblock title %}
+
+
+<!-- 写入 base.html 中定义的 content -->
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-12">
+            <br>
+            <!-- 提交文章的表单.Django中需要POST数据的地方都必须有csrf_token-->
+            <!-- action="."指定了表单提交的地址为默认的当前url -->
+            <form method="post" action=".">
+                {% csrf_token %}
+
+                <div class="form-group">
+                    <label for="title">文章标题</label>
+                    <input type="text" class="form-control" id="title" name="title">
+                </div>
+
+                <div class="form-group">
+                    <label for="body">文章正文</label>
+                    <textarea type="text" class="form-control" id="body" name="body" rows="12"></textarea>
+                    <!-- <input>和<textarea>标签中的name=''属性指定了当前文本框提交的数据的名称，
+                    它必须与表单类中的字段名称对应，否则服务器无法将字段和数据正确的对应起来。-->
+                </div>
+
+                <!-- 提交按钮 -->
+                <button type="submit" class="btn btn-primary">完成</button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock content %}
+

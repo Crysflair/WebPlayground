@@ -1,0 +1,31 @@
+<!-- 定义导航栏.标签内的class属性是Bootstrap样式的定义方法 -->
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+  <div class="container">
+
+    <!-- 导航栏商标 -->
+    <a class="navbar-brand" href="#">
+        MysriO's Playground
+    </a>
+
+    <!-- 导航入口 -->
+    <div>
+      <ul class="navbar-nav">
+        <!-- 条目 -->
+
+        <li class="nav-item">
+          <a class="nav-link" href="{% url 'article:article_create' %}">写文章</a>
+        </li>
+
+        <li class="nav-item">
+          <!--<a class="nav-link" href="#">文章</a>
+          href定义了链接跳转的地址。
+          {\% url '...' %\\}是Django规定的模板解耦语法，用它可以根据我们在urls.py中设置的名字，反向解析到对应的url中去
+          用app::名字比直接href=url便于维护
+          -->
+          <a class="nav-link" href="{% url 'article:article_list' %}">文章</a>
+        </li>
+      </ul>
+    </div>
+
+  </div>
+</nav>
