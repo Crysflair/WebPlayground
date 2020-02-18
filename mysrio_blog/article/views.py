@@ -26,7 +26,6 @@ def article_detail(request, id):
         ]
     )
     context = {'article': article}
-    print(article.body)
     return render(request, 'article/detail.html', context)
 
 

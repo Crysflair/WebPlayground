@@ -19,7 +19,6 @@ from django.urls import path, include
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('article/', include('article.urls', namespace='article'))
-    # 参数article/分配了app的访问路径,
-    # 在开发环境下，article的url为：http://127.0.0.1:8000/article/
+    path('article/', include('article.urls', namespace='article')),
+    path('userprofile/', include('userprofile.urls', namespace='userprofile')),
 ]
