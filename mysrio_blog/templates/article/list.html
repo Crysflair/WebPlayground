@@ -12,6 +12,30 @@
 
 <!-- 定义放置文章标题的div容器 -->
 <div class="container">
+
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item">
+                {% if order != normal %}
+                <a href="{% url 'article:article_list' %}">
+                    最新
+                </a>
+                {% else %}
+                最新
+                {% endif %}
+            </li>
+            <li class="breadcrumb-item">
+                {% if order != total_views %}
+                <a href="{% url 'article:article_list' %}?order=total_views">
+                    最热
+                </a>
+                {% else %}
+                最热
+                {% endif %}
+            </li>
+        </ol>
+    </nav>
+
     <div class="row mt-2">
 
         {% for article in articles %}
@@ -23,11 +47,19 @@
                 <h4 class="card-header">{{ article.title }}</h4>
                 <!-- 摘要 -->
                 <div class="card-body">
-                    <p class="card-text">{{ article.body|slice:'100' }}...</p>
+                    <p class="card-text">{{ article.body | slice:'100' }}...</p>
                 </div>
                 <!-- 注脚 -->
                 <div class="card-footer">
-                    <a href="{% url 'article:article_detail' article.id %}" class="btn btn-primary">阅读本文</a>
+                    <a href="{% url 'article:article_detail' article.id %}" class="btn btn-primary">
+                        阅读本文
+                    </a>
+                    <!-- 显示浏览量 -->
+                    <span>
+                        <small class="col align-self-end" style="color: gray;">
+                            浏览: {{ article.total_views }}
+                        </small>
+                    </span>
                 </div>
             </div>
         </div>
@@ -35,4 +67,48 @@
 
     </div>
 </div>
+
+
+<!-- 页码导航 -->
+<div class="pagination row">
+    <div class="m-auto">
+        <span class="step-links">
+            <!-- 如果不是第一页，则显示上翻按钮 -->
+            {% if articles.has_previous %}
+                <a href="?page=1&order={{ order }}" class="btn btn-success">
+                    &laquo; 1
+                </a>
+                <span> ... </span>
+                <a href="?page={{ articles.previous_page_number }}&order={{ order }}"
+                   class="btn btn-secondary"
+                >
+                    {{ articles.previous_page_number }}
+                </a>
+            {% endif %}
+
+            <!-- 当前页面 -->
+            <span class="current btn btn-danger btn-lg">
+                {{ articles.number }}
+            </span>
+
+            <!-- 如果不是最末页，则显示下翻按钮 -->
+            {% if articles.has_next %}
+                <a href="?page={{ articles.next_page_number }}&order={{ order }}"
+                   class="btn btn-secondary"
+                >
+                    {{ articles.next_page_number }}
+                </a>
+                <span> ... </span>
+                <a href="?page={{ articles.paginator.num_pages }}&order={{ order }}"
+                   class="btn btn-success"
+                >
+                    {{ articles.paginator.num_pages }} &raquo;
+                </a>
+            {% endif %}
+        </span>
+    </div>
+</div>
+
+...
+
 {% endblock content %}

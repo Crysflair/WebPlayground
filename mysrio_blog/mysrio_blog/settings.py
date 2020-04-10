@@ -15,18 +15,18 @@ import os
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/2.2/howto/deployment/checklist/
-
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'uex#$@0ohqq1v7-20ip7wy((dh(2zwx3qrduv01wy&cf5d=wb*'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['2462ou9128.zicp.vip',
+                 '127.0.0.1'
+                 ]
 
+MEDIA_URL = '/media/'       # 代表用户通过URL来访问这个本地地址的URL
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media/')       # 文件夹的位置
 
 # Application definition
 
@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'article',
     'userprofile',
+    'password_reset',
 ]
 
 MIDDLEWARE = [
@@ -70,7 +71,6 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'mysrio_blog.wsgi.application'
-
 
 # Database
 # https://docs.djangoproject.com/en/2.2/ref/settings/#databases
@@ -124,3 +124,13 @@ STATIC_URL = '/static/'
 STATICFILES_DIRS = (
     os.path.join(BASE_DIR, "static"),
 )
+
+
+# email sending settings
+# SMTP服务器
+EMAIL_HOST = 'smtp.qq.com'
+EMAIL_HOST_USER = 'crysflair@foxmail.com'
+EMAIL_HOST_PASSWORD = 'dditpuktvdokdfbg'
+EMAIL_PORT = 25     # SMTP是基于文本的协议。在其之上指定了一条消息的一个或多个接收者，然后消息文本会被传输。SMTP使用TCP端口25。# 465?
+EMAIL_USE_TLS = True
+DEFAULT_FROM_EMAIL = 'Mysrio <crysflair@foxmail.com>'

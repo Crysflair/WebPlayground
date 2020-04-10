@@ -16,17 +16,22 @@
         <!-- 标题及作者 -->
         <h1 class="col-12 mt-4 mb-4">{{ article.title }}</h1>
         <div class="col-12 alert alert-success">作者：{{ article.author }}
-            <a href="#" onclick="confirm_safe_delete()"> 删除文章 </a>
-            <!-- 新增一个隐藏的表单 -->
-            <form
-                  style="display:none;"
-                  id="safe_delete"
-                  action="{% url 'article:article_safe_delete' article.id %}"
-                  method="POST">
-                {% csrf_token %}
-                <button type="submit">发送</button>
-            </form>
-            <a href="{% url 'article:article_update' article.id %}"> 编辑文章 </a>
+            {% if user == article.author %}
+                <a href="#" onclick="confirm_safe_delete()"> 删除文章 </a>
+                <!-- 新增一个隐藏的表单, confirm_safe_delete 会发送它 -->
+                <form
+                      style="display:none;"
+                      id="safe_delete"
+                      action="{% url 'article:article_safe_delete' article.id %}"
+                      method="POST">
+                    {% csrf_token %}
+                    <button type="submit">发送</button>
+                </form>
+                <a href="{% url 'article:article_update' article.id %}"> 编辑文章 </a>
+            {% endif %}
+            <div>
+                浏览：{{ article.total_views }}
+            </div>
         </div>
 
 

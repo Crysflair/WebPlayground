@@ -26,8 +26,9 @@
               {{ user.username }}
             </a>
             <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-              <a class="dropdown-item" href='{% url "userprofile:logout" %}'>退出登录</a>
-              <a class="dropdown-item" href="#" onclick='user_delete()'>删除用户</a>
+                <a class="dropdown-item" href='{% url "userprofile:edit" user.id %}'>个人信息</a>
+                <a class="dropdown-item" href='{% url "userprofile:logout" %}'>退出登录</a>
+                <a class="dropdown-item" href="#" onclick='user_delete()'>删除用户</a>
             </div>
         </li>
         <!-- 如果用户未登录，则显示 “登录” -->
@@ -47,7 +48,7 @@
 
 
 
-<!-- 新增 -->
+<!-- 新增.如果已经登陆，可能会有删除用户的操作。为了安全要post。这里是隐藏的表单，和弹窗js函数 -->
 {% if user.is_authenticated %}
 <form
     style="display:none;"
@@ -58,17 +59,17 @@
 {% csrf_token %}
     <button type="submit">发送</button>
 </form>
-    <script>
-        function user_delete() {
-            // 调用layer弹窗组件
-            layer.open({
-                title: "确认删除",
-                content: "确认删除用户资料吗？",
-                yes: function(index, layero) {
-                    $('form#user_delete button').click();
-                    layer.close(index);
-                },
-            })
-        }
-    </script>
+<script>
+    function user_delete() {
+        // 调用layer弹窗组件
+        layer.open({
+            title: "确认删除",
+            content: "确认删除用户资料吗？",
+            yes: function(index, layero) {
+                $('form#user_delete button').click();
+                layer.close(index);
+            },
+        })
+    }
+</script>
 {% endif %}
