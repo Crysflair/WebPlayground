@@ -1,22 +1,40 @@
 from django.shortcuts import render, redirect
 from django.http import HttpResponse
 from .models import ArticlePost
+from comment.models import Comment
 from .forms import ArticlePostForm
 from django.contrib.auth.models import User
 import markdown
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
+from django.db.models import Q
 
 
 def article_list(request):
     # 排序，需要GET请求中就已经给出order。GET请求也是可以传递多个参数的，如 ?a=1&b=2，参数间用&隔开
-    if request.GET.get('order') == 'total_views':
-        articles = ArticlePost.objects.all().order_by('-total_views')
-        # ‘total_views’为正序，‘-total_views’为逆序
-        order = 'total_views'
-    else:
-        articles = ArticlePost.objects.all()
+    search = request.GET.get('search')
+    order = request.GET.get('order')
+    if not order:
         order = 'normal'
+    if not search:
+        search = ''     # 如果用户没有搜索操作，则search = request.GET.get('search')会使得search = None，而这个值传递到模板中会错误地转换成"None"字符串！
+        if order == 'total_views':
+            articles = ArticlePost.objects.all().order_by('-total_views')  # ‘total_views’为正序，‘-total_views’为逆序
+        else:
+            articles = ArticlePost.objects.all()
+    else:   # if search
+        if order == 'total_views':
+            # 用 Q对象 进行联合搜索
+            # icontains是不区分大小写的包含，contains区分大小写
+            articles = ArticlePost.objects.filter(
+                Q(title__icontains=search) |
+                Q(body__icontains=search)
+            ).order_by('-total_views')
+        else:
+            articles = ArticlePost.objects.filter(
+                Q(title__icontains=search) |
+                Q(body__icontains=search)
+            )
 
     # 每页显示 4 篇文章
     paginator = Paginator(articles, 4)
@@ -25,23 +43,27 @@ def article_list(request):
     page = request.GET.get('page')
     articles = paginator.get_page(page)
 
-    context = {'articles': articles, 'order': order}
+    context = {'articles': articles, 'order': order, 'search': search}
     # 为什么把新变量order也传递到模板中？因为文章需要翻页！order给模板一个标识，提醒模板下一页应该如何排序
     return render(request, 'article/list.html', context)
 
 
 def article_detail(request, id):
     article = ArticlePost.objects.get(id=id)
-    article.body = markdown.markdown(
-        article.body,
-        extensions=[
-            "markdown.extensions.extra",
-            "markdown.extensions.codehilite"
-        ]
-    )
     article.total_views += 1
     article.save(update_fields=['total_views'])  # update_fields=[]指定了数据库只更新total_views字段，优化执行效率。
-    context = {'article': article}
+    md = markdown.Markdown(
+        extensions=[
+            "markdown.extensions.extra",
+            "markdown.extensions.codehilite",
+            'markdown.extensions.toc',  # 目录扩展
+        ]
+    )
+    # 用convert()方法将正文渲染为html页面。通过md.toc将目录传递给模板。
+    article.body = md.convert(article.body)
+
+    comments = Comment.objects.filter(article=id)
+    context = {'article': article, 'toc': md.toc, 'comments': comments}
     return render(request, 'article/detail.html', context)
 
 

@@ -16,13 +16,15 @@
                 <h5 class="col-md-4">暂无头像</h5>
             {% endif %}
             <br>
-            <br>
+
 
             <form method="post" action="." enctype="multipart/form-data">
                 {% csrf_token %}
 
+
+
                 <!-- avatar -->
-                <div class="form-group">
+                <div class="form-group col-md-4">
                     <label for="avatar">上传头像</label>
                     <input type="file" class="form-control-file" name="avatar" id="avatar">
                 </div>
@@ -37,9 +39,7 @@
                 <div class="form-group col-md-4">
                     <label for="bio">简介</label>
                     <textarea type="text" class="form-control"
-                              id="bio" name="bio" rows="12">
-                        {{ profile.bio }}
-                    </textarea>
+                              id="bio" name="bio" rows="12">{{ profile.bio }}</textarea>
                 </div>
                 <!-- 提交按钮 -->
                 <button type="submit" class="btn btn-primary">提交</button>

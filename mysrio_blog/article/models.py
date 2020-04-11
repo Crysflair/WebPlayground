@@ -1,11 +1,7 @@
 from django.db import models
-
-# Create your models here.
-# 每当你修改了models.py文件，都需要用makemigrations和migrate这两条指令迁移数据
-
-
+from django.urls import reverse
 from django.contrib.auth.models import User
-# timezone 用于处理时间相关事务。
+
 from django.utils import timezone
 
 
@@ -35,3 +31,6 @@ class ArticlePost(models.Model):
     def __str__(self):
         # return self.title 将文章标题返回
         return self.title
+
+    def get_absolute_url(self):
+        return reverse('article:article_detail', args=[self.id])

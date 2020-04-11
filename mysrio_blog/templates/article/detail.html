@@ -13,34 +13,92 @@
 <!-- 文章详情 -->
 <div class="container">
     <div class="row">
-        <!-- 标题及作者 -->
-        <h1 class="col-12 mt-4 mb-4">{{ article.title }}</h1>
-        <div class="col-12 alert alert-success">作者：{{ article.author }}
-            {% if user == article.author %}
-                <a href="#" onclick="confirm_safe_delete()"> 删除文章 </a>
-                <!-- 新增一个隐藏的表单, confirm_safe_delete 会发送它 -->
-                <form
-                      style="display:none;"
-                      id="safe_delete"
-                      action="{% url 'article:article_safe_delete' article.id %}"
-                      method="POST">
-                    {% csrf_token %}
-                    <button type="submit">发送</button>
-                </form>
-                <a href="{% url 'article:article_update' article.id %}"> 编辑文章 </a>
-            {% endif %}
+
+        <div class="col-9">
+            <h1 class="mt-4 mb-4">{{ article.title }}</h1>
+            <div class="alert alert-success">作者：{{ article.author }}
+                {% if user == article.author %}
+                    <a href="#" onclick="confirm_safe_delete()"> 删除文章 </a>
+                    <!-- 新增一个隐藏的表单, confirm_safe_delete 会发送它 -->
+                    <form
+                          style="display:none;"
+                          id="safe_delete"
+                          action="{% url 'article:article_safe_delete' article.id %}"
+                          method="POST">
+                        {% csrf_token %}
+                        <button type="submit">发送</button>
+                    </form>
+                    <a href="{% url 'article:article_update' article.id %}"> 编辑文章 </a>
+                {% endif %}
+                <div>
+                    浏览：{{ article.total_views }}
+                </div>
+            </div>
+
+            <p>{{ article.body | safe}}</p> <!--而|safe就类似给article.body贴了一个标签，表示这一段字符不需要进行转义了。-->
+            <hr>    <!-- 分割线 -->
+
+            {% if user.is_authenticated %}
             <div>
-                浏览：{{ article.total_views }}
+            <form
+                action="{% url 'comment:post_comment' article.id %}"
+                method="POST"
+            >
+                {% csrf_token %}
+                <div class="form-group">
+                    <label for="body">
+                        <strong>
+                            我也要发言：
+                        </strong>
+                    </label>
+                    <textarea
+                        type="text"
+                        class="form-control"
+                        id="body"
+                        name="body"
+                        rows="2"></textarea>
+                </div>
+                <!-- 提交按钮 -->
+                <button type="submit" class="btn btn-primary ">发送</button>
+            </form>
+            </div>
+            <br>
+            {% else %}
+            <br>
+            <h5 class="row justify-content-center">
+                请<a href="{% url 'userprofile:login' %}">登录</a>后回复
+            </h5>
+            <br>
+            {% endif %}
+
+
+            <!-- 显示评论 -->
+            <h4>共有{{ comments.count }}条评论</h4>
+            <div>
+                {% for comment in comments %}
+                    <hr>
+                    <p>
+                        <strong style="color: pink">
+                            {{ comment.user }}
+                        </strong> 于
+                        <span style="color: green">
+                            {{ comment.created|date:"Y-m-d H:i:s" }}
+                        </span> 时说：
+                    </p>
+                    <pre style="font-family: inherit; font-size: 1em;">{{ comment.body }}</pre>
+                {% endfor %}
+            </div>
+
+        </div><!--左边栏-->
+
+        <div class="col-3 mt-4">
+            <h4><strong>目录</strong></h4>
+            <hr>
+            <div>
+                {{ toc|safe }}
             </div>
         </div>
 
-
-        <!-- 文章正文 -->
-        <div class="col-12">
-            <p>{{ article.body | safe}}</p>
-            <!--Django出于安全的考虑，会将输出的HTML代码进行转义，这使得article.body中渲染的HTML文本无法正常显示。管道符|是Django中过滤器的写法，-->
-            <!--而|safe就类似给article.body贴了一个标签，表示这一段字符不需要进行转义了。-->
-        </div>
     </div>
 </div>
 

@@ -28,6 +28,7 @@ ALLOWED_HOSTS = ['2462ou9128.zicp.vip',
 MEDIA_URL = '/media/'       # 代表用户通过URL来访问这个本地地址的URL
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media/')       # 文件夹的位置
 
+
 # Application definition
 
 INSTALLED_APPS = [
@@ -40,6 +41,7 @@ INSTALLED_APPS = [
     'article',
     'userprofile',
     'password_reset',
+    'comment'
 ]
 
 MIDDLEWARE = [
@@ -107,7 +109,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Asia/Shanghai'
 
 USE_I18N = True
 
