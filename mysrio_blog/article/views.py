@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect
 from django.http import HttpResponse
-from .models import ArticlePost
+from .models import ArticlePost,ArticleColumn
 from comment.models import Comment
 from .forms import ArticlePostForm
 from django.contrib.auth.models import User
@@ -8,43 +8,46 @@ import markdown
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
 from django.db.models import Q
+from taggit.utils import _parse_tags
 
 
 def article_list(request):
     # 排序，需要GET请求中就已经给出order。GET请求也是可以传递多个参数的，如 ?a=1&b=2，参数间用&隔开
     search = request.GET.get('search')
     order = request.GET.get('order')
+    column = request.GET.get('column')
+    tag = request.GET.get('tag')
+
+    articles = ArticlePost.objects.all()
     if not order:
         order = 'normal'
     if not search:
         search = ''     # 如果用户没有搜索操作，则search = request.GET.get('search')会使得search = None，而这个值传递到模板中会错误地转换成"None"字符串！
-        if order == 'total_views':
-            articles = ArticlePost.objects.all().order_by('-total_views')  # ‘total_views’为正序，‘-total_views’为逆序
-        else:
-            articles = ArticlePost.objects.all()
-    else:   # if search
-        if order == 'total_views':
-            # 用 Q对象 进行联合搜索
-            # icontains是不区分大小写的包含，contains区分大小写
-            articles = ArticlePost.objects.filter(
-                Q(title__icontains=search) |
-                Q(body__icontains=search)
-            ).order_by('-total_views')
-        else:
-            articles = ArticlePost.objects.filter(
-                Q(title__icontains=search) |
-                Q(body__icontains=search)
-            )
+    if not tag:
+        tag = ''
 
-    # 每页显示 4 篇文章
-    paginator = Paginator(articles, 4)
+    if search:
+        articles = articles.filter(
+            Q(title__icontains=search) |
+            Q(body__icontains=search))
+    if order == 'total_views':
+        articles = articles.order_by('-total_views')  # ‘total_views’为正序，‘-total_views’为逆序
+    if column and column.isdigit():
+        articles = articles.filter(column=column)
+    if tag:
+        articles = articles.filter(tags__name__in=[tag])
 
-    # 获取 url 中的页码 (?key=value), 将导航对象相应的页码内容返回给 articles
+
+    paginator = Paginator(articles, 6)
     page = request.GET.get('page')
     articles = paginator.get_page(page)
 
-    context = {'articles': articles, 'order': order, 'search': search}
-    # 为什么把新变量order也传递到模板中？因为文章需要翻页！order给模板一个标识，提醒模板下一页应该如何排序
+    context = {'articles': articles,
+               'order': order,
+               'search': search,
+               'column': column,
+               'tag': tag,
+               }
     return render(request, 'article/list.html', context)
 
 
@@ -79,21 +82,31 @@ def article_create(request):
         # Form实例可以绑定到数据，也可以不绑定数据。
         # 如果绑定到数据，就能够验证该数据并将表单呈现为HTML并显示数据
 
-        article_post_form = ArticlePostForm(data=request.POST)  # data: dict
+        article_post_form = ArticlePostForm(data=request.POST, files=request.FILES)  # data: dict
 
         # 如果接受到的post正确地创建了表单对象
         if article_post_form.is_valid():
-            # 暂时还不提交数据库
-            new_article = article_post_form.save(commit=False)
+
+            new_article = article_post_form.save(commit=False)  # 暂时还不提交数据库, Form 里不全
             new_article.author = User.objects.get(id=request.user.id)
+            column = request.POST['column']
+            if column and column.isdigit():
+                new_article.column = ArticleColumn.objects.get(id=column)
+            else:
+                new_article.column = None
             new_article.save()  # 保存到数据库
+            # 新增代码，保存 tags 的多对多关系,
+            # 需要注意的是，如果提交的表单使用了commit=False选项，则必须调用save_m2m()才能正确的保存标签，就像普通的多对多关系一样。
+            article_post_form.save_m2m()
+
             return redirect("article:article_list")  # redirect可通过url地址的名字，反向解析到对应的url。
         else:
             return HttpResponse("表单内容有误，请重新填写")
     else:
-        # 创建空表单类实例，render呈现
+        # GET, 创建空表单类实例，render呈现
         article_post_form = ArticlePostForm()
-        context = {'article_post_form': article_post_form}
+        columns = ArticleColumn.objects.all()
+        context = {'article_post_form': article_post_form, 'columns': columns}
         return render(request, 'article/create.html', context)
 
 
@@ -125,14 +138,28 @@ def article_update(request, id):
         if article_post_form.is_valid():
             article.title = request.POST['title']
             article.body = request.POST['body']
+            column = request.POST['column']
+            if column and column.isdigit():
+                article.column = ArticleColumn.objects.get(id=column)
+            else:
+                article.column = None
+            if request.POST['tags']:
+                article.tags.set(*_parse_tags(request.POST['tags']), clear=True)
+
             article.save()
+
             return redirect("article:article_detail", id=id)
         else:
             return HttpResponse("表单内容有误，更新文章失败")
     else:
         article_post_form = ArticlePostForm()
+        columns = ArticleColumn.objects.all()
         # 赋值上下文，将原内容 article 文章对象也传递进去
-        context = {'article': article, 'article_post_form': article_post_form }
+        context = {'article': article,
+                   'article_post_form': article_post_form,
+                   'tags': article.tags.names(),
+                   'columns': columns,
+                   }
         # 将响应返回到模板中
         return render(request, 'article/update.html', context)
 

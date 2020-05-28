@@ -1,5 +1,7 @@
 <!-- extends表明此页面继承自 base.html 文件 -->
 {% extends "base.html" %}
+
+
 {% load staticfiles %}
 
 <!-- 写入 base.html 中定义的 title -->
@@ -9,6 +11,9 @@
 
 <!-- 写入 base.html 中定义的 content -->
 {% block content %}
+
+<script src="{% static 'ckeditor/ckeditor/plugins/prism/lib/prism/prism_patched.min.js' %}"></script>
+<link rel="stylesheet" href="{% static 'prism/prism.css' %}">
 
 <!-- 文章详情 -->
 <div class="container">
@@ -41,7 +46,7 @@
             {% if user.is_authenticated %}
             <div>
             <form
-                action="{% url 'comment:post_comment' article.id %}"
+                action="."
                 method="POST"
             >
                 {% csrf_token %}
@@ -59,7 +64,7 @@
                         rows="2"></textarea>
                 </div>
                 <!-- 提交按钮 -->
-                <button type="submit" class="btn btn-primary ">发送</button>
+                <button onclick="confirm_submit_root({{article.id}})" class="btn btn-primary ">发送</button>
             </form>
             </div>
             <br>
@@ -72,30 +77,111 @@
             {% endif %}
 
 
-            <!-- 显示评论 -->
+
+            <!-- 改动 显示评论 部分 -->
+
+            <!-- 不要漏了 load mptt_tags！ -->
+            {% load mptt_tags %}
             <h4>共有{{ comments.count }}条评论</h4>
-            <div>
-                {% for comment in comments %}
-                    <hr>
-                    <p>
-                        <strong style="color: pink">
-                            {{ comment.user }}
-                        </strong> 于
-                        <span style="color: green">
-                            {{ comment.created|date:"Y-m-d H:i:s" }}
-                        </span> 时说：
-                    </p>
-                    <pre style="font-family: inherit; font-size: 1em;">{{ comment.body }}</pre>
-                {% endfor %}
+            <div class="row">
+                <!-- 遍历树形结构 -->
+                {% recursetree comments %}
+                    <!-- 给 node 取个别名 comment -->
+                    {% with comment=node %}
+                        <div class="{% if comment.reply_to %}
+                                    offset-1 col-11
+                                    {% else %}
+                                    col-12
+                                    {% endif %}"
+                        >
+                            <hr>
+                            <p>
+                                <strong style="color: pink">
+                                    {{ comment.user }}
+                                </strong>
+
+                                {% if comment.reply_to %}
+                                    <i class="far fa-arrow-alt-circle-right"
+                                       style="color: cornflowerblue;"
+                                    ></i>
+                                    <strong style="color: pink">
+                                        {{ comment.reply_to }}
+                                    </strong>
+                                {% endif %}
+
+                            </p>
+                            <div>{{ comment.body|safe }}</div>
+
+                            <div>
+                                <span style="color: gray">
+                                    {{ comment.created|date:"Y-m-d H:i" }}
+                                </span>
+
+                                <!-- 加载 modal 的按钮 -->
+                                {% if user.is_authenticated %}
+                                <button type="button"
+                                        class="btn btn-light btn-sm text-muted"
+                                        onclick="load_modal({{ article.id }}, {{ comment.id }})"
+                                        >
+                                    回复
+                                </button>
+                                {% else %}
+                                <a class="btn btn-light btn-sm text-muted"
+                                   href="{% url 'userprofile:login' %}"
+                                   >
+                                    回复
+                                </a>
+                                {% endif %}
+                            </div>
+
+                            <!-- Modal -->
+                            <div class="modal fade"
+                                 id="comment_{{ comment.id }}"
+                                 tabindex="-1"
+                                 role="dialog"
+                                 aria-labelledby="CommentModalCenter"
+                                 aria-hidden="true"
+                            >
+                                <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+                                    <div class="modal-content" style="height: 480px">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title" id="exampleModalCenterTitle">回复 {{ comment.user }}：</h5>
+                                        </div>
+                                        <div class="modal-body" id="modal_body_{{ comment.id }}"></div>
+                                    </div>
+
+                                </div>
+                            </div>
+
+                            {% if not comment.is_leaf_node %}
+                                <div class="children">
+                                    {{ children }}
+                                </div>
+                            {% endif %}
+                        </div>
+
+
+                    {% endwith %}
+                {% endrecursetree %}
             </div>
+
+
+
+
+
+
 
         </div><!--左边栏-->
 
         <div class="col-3 mt-4">
-            <h4><strong>目录</strong></h4>
-            <hr>
-            <div>
-                {{ toc|safe }}
+            <div id="sidebar" class="sidebar">
+                <div class="sidebar__inner">
+                    <h4><strong>目录</strong></h4>
+                    <hr>
+                    <div>
+                        {{ toc|safe }}
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -103,6 +189,26 @@
 </div>
 
 
+<!-- 粘性侧边栏样式 -->
+<style>
+    .sidebar{
+        will-change: min-height;
+    }
+
+    .sidebar__inner{
+        transform: translate(0, 0);
+        transform: translate3d(0, 0, 0);
+        will-change: position, transform;
+    }
+</style>
+
+
+
+{% endblock content %}
+
+
+
+{% block script %}
 <script>
     // 删除文章的函数
     function confirm_safe_delete() {
@@ -118,7 +224,64 @@
         })
     }
 </script>
+<!-- 引入粘性侧边栏 -->
+<script src="{% static 'sidebar/jquery.sticky-sidebar.min.js' %}"></script>
+<script type="text/javascript">
+    $('#sidebar').stickySidebar({
+        topSpacing: 20,
+        bottomSpacing: 20,
+    });
+</script>
+<!-- 唤醒二级回复的 modal -->
+<script>
+    // 加载 modal
+    function load_modal(article_id, comment_id) {
+        let modal_body = '#modal_body_' + comment_id;
+        let modal_id = '#comment_' + comment_id;
+
+        // 加载编辑器
+        if ($(modal_body).children().length === 0) {
+            let content = '<iframe src="/comment/post-comment/' +
+                article_id +
+                '/' +
+                comment_id +
+                '"' +
+                ' frameborder="0" style="width: 100%; height: 100%;" id="iframe_' +
+                comment_id +
+                '"></iframe>';
+            $(modal_body).append(content);
+        };
+
+        $(modal_id).modal('show');
+    }
+</script>
 
 
+<!--企图在根回复框使用ajax-->
+    <!-- csrf token -->
+    <script src="{% static 'csrf.js' %}"></script>
 
-{% endblock content %}
+<script>
+$(function(){
+    $(".django-ckeditor-widget").removeAttr('style');
+});
+
+function confirm_submit_root(article_id){
+    // 从 ckeditor 中取值
+    let content = CKEDITOR.instances['id_body'].getData();
+    // 调用 ajax 与后端交换数据
+    $.ajax({
+        url: '/comment/post-comment/' + article_id,
+        type: 'POST',
+        data: {body: content},
+        // 成功回调
+        success: function(e){
+            if(e === '200 OK'){
+                location.reload();
+            }
+        }
+    })
+}
+</script>
+
+{% endblock script %}
