@@ -45,15 +45,15 @@
 
             {% if user.is_authenticated %}
             <div>
-            <form
+            <!--form
                 action="."
                 method="POST"
-            >
+            -->
                 {% csrf_token %}
                 <div class="form-group">
                     <label for="body">
                         <strong>
-                            我也要发言：
+                            SB留言：
                         </strong>
                     </label>
                     <textarea
@@ -65,7 +65,7 @@
                 </div>
                 <!-- 提交按钮 -->
                 <button onclick="confirm_submit_root({{article.id}})" class="btn btn-primary ">发送</button>
-            </form>
+            <!-- form -->
             </div>
             <br>
             {% else %}
@@ -257,9 +257,9 @@
 </script>
 
 
-<!--企图在根回复框使用ajax-->
-    <!-- csrf token -->
-    <script src="{% static 'csrf.js' %}"></script>
+<!-- 企图在根回复框使用ajax -->
+
+<script src="{% static 'csrf.js' %}"></script>
 
 <script>
 $(function(){
@@ -267,9 +267,9 @@ $(function(){
 });
 
 function confirm_submit_root(article_id){
-    // 从 ckeditor 中取值
-    let content = CKEDITOR.instances['id_body'].getData();
-    // 调用 ajax 与后端交换数据
+
+    let content = $("textarea[name=body]").val();
+
     $.ajax({
         url: '/comment/post-comment/' + article_id,
         type: 'POST',
