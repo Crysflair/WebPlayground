@@ -16,12 +16,15 @@ import os
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'uex#$@0ohqq1v7-20ip7wy((dh(2zwx3qrduv01wy&cf5d=wb*'
+SECRET_KEY = 'ex#$@0ohqq1v7-20^%@#F((dh(2zwx3#%FGti9)(&cf5d=wb*2'
+# 'uex#$@0ohqq1v7-20ip7wy((dh(2zwx3qrduv01wy&cf5d=wb*'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
-ALLOWED_HOSTS = ['2462ou9128.zicp.vip',
+LOGIN_REDIRECT_URL = '/'
+
+ALLOWED_HOSTS = ['*',
                  '127.0.0.1'
                  ]
 
@@ -169,4 +172,26 @@ CKEDITOR_CONFIGS = {
         # 加入代码块插件
         'extraPlugins': ','.join(['codesnippet', 'prism', 'widget', 'lineutils']),
     }
+}
+
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'file': {
+            'level': 'INFO',
+            'class': 'logging.handlers.TimedRotatingFileHandler',
+            'when': 'midnight',
+            'backupCount': 30,
+            'filename': os.path.join(BASE_DIR, 'logs/debug.log'),
+        },
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['file'],
+            'level': 'INFO',
+            'propagate': True,
+        },
+    },
 }

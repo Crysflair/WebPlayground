@@ -21,7 +21,7 @@
                         {{ notice.actor }}
                     </span>
                     在
-                    <a href="{% url "notice:update" %}?article_id={{ notice.target.id }}&notice_id={{ notice.id }}"
+                    <a href="{% url "notice:update" %}?article_id={{ notice.target.id }}&notice_id={{ notice.id }}#comment_anchor_{{ notice.action_object.id }}"
                        target="_blank">
                         {{ notice.target }}
                     </a>

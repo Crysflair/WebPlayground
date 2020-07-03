@@ -45,10 +45,11 @@
 
             {% if user.is_authenticated %}
             <div>
-            <!--form
-                action="."
-                method="POST"
-            -->
+            <!-- action 不能写 ".", 那样会被post到当前目录 -->
+            <form
+                    action="{% url 'comment:post_comment' article.id %}"
+                    method="POST"
+            >
                 {% csrf_token %}
                 <div class="form-group">
                     <label for="body">
@@ -64,8 +65,8 @@
                         rows="2"></textarea>
                 </div>
                 <!-- 提交按钮 -->
-                <button onclick="confirm_submit_root({{article.id}})" class="btn btn-primary ">发送</button>
-            <!-- form -->
+                <button type="submit" class="btn btn-primary ">发送</button>
+            </form>
             </div>
             <br>
             {% else %}
@@ -93,6 +94,7 @@
                                     {% else %}
                                     col-12
                                     {% endif %}"
+                             id="comment_anchor_{{ comment.id }}"
                         >
                             <hr>
                             <p>
@@ -253,35 +255,34 @@
         };
 
         $(modal_id).modal('show');
-    }
+    };
 </script>
 
-
-<!-- 企图在根回复框使用ajax -->
-
-<script src="{% static 'csrf.js' %}"></script>
-
+<!-- 锚点定位二级回复 -->
 <script>
-$(function(){
-    $(".django-ckeditor-widget").removeAttr('style');
-});
 
-function confirm_submit_root(article_id){
+    $(document).ready(function(){
 
-    let content = $("textarea[name=body]").val();
+        let hash = window.location.hash;
+        $(document.body).animate({
+        'scrollTop':   $(hash).offset().top
+        }, 2000);
 
-    $.ajax({
-        url: '/comment/post-comment/' + article_id,
-        type: 'POST',
-        data: {body: content},
-        // 成功回调
-        success: function(e){
-            if(e === '200 OK'){
-                location.reload();
-            }
-        }
-    })
-}
+    });
+
+    function post_reply_and_show_it(comment_anchor_id) {
+
+        //let next_url = "{% url 'article:article_detail' article.id %}";
+        // 去除 url 尾部 '/' 符号
+        // next_url = next_url.charAt(next_url.length - 1) == '/' ? next_url.slice(0, -1) : next_url;
+
+        // 刷新并定位到锚点
+        window.location.hash = "#comment_anchor_" + comment_anchor_id;
+
+        //let anchor = next_url +
+        //window.location.replace(anchor);
+        window.location.reload();
+    };
 </script>
 
 {% endblock script %}

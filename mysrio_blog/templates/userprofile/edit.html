@@ -18,15 +18,13 @@
             <br>
 
 
-            <form method="post" action="." enctype="multipart/form-data">
+            <form method="post" action="." id="profile" enctype="multipart/form-data">
                 {% csrf_token %}
-
-
 
                 <!-- avatar -->
                 <div class="form-group col-md-4">
                     <label for="avatar">上传头像</label>
-                    <input type="file" class="form-control-file" name="avatar" id="avatar">
+                    <input type="file" class="form-control-file" name="avatar" id="avatar" accept="image/*">
                 </div>
 
                 <!-- phone -->
@@ -42,10 +40,21 @@
                               id="bio" name="bio" rows="12">{{ profile.bio }}</textarea>
                 </div>
                 <!-- 提交按钮 -->
-                <button type="submit" class="btn btn-primary">提交</button>
+                <button onclick="edit_profile({{ user.id }})" class="btn btn-primary">提交</button>
             </form>
         </div>
     </div>
 </div>
+
+
 {% endblock content %}
 
+{% block script %}
+<script src="{% static 'csrf.js' %}"></script>
+<script>
+    function edit_profile(user_id) {
+        let $form = $("#profile");
+
+    }
+</script>
+{% endblock script %}

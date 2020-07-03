@@ -19,8 +19,11 @@ from django.conf import settings
 from django.conf.urls.static import static
 
 import notifications.urls
+from django.views.generic.base import TemplateView
+from article.views import article_list
 
 urlpatterns = [
+    path('', article_list, name='home'),
     path('admin/', admin.site.urls),
     path('article/', include('article.urls', namespace='article')),
     path('userprofile/', include('userprofile.urls', namespace='userprofile')),
@@ -28,6 +31,8 @@ urlpatterns = [
     path('comment/', include('comment.urls', namespace='comment')),
     path('inbox/notifications/', include(notifications.urls, namespace='notifications')),
     path('notice/', include('notice.urls', namespace='notice')),
+    path("robots.txt",TemplateView.as_view(template_name="robots.txt", content_type="text/plain")),
+
     ]
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
