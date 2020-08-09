@@ -12,25 +12,27 @@ https://docs.djangoproject.com/en/2.2/ref/settings/
 
 import os
 
+# 自己设定的本地和部署config变量
+config_mode = 'debug'
+assert config_mode in ('debug', 'product')
+
+if config_mode == 'debug':
+    SECRET_KEY = 'easy_key'
+    DEBUG = True
+    ALLOWED_HOSTS = []
+else:
+    # set secret key on the server
+    DEBUG = False
+    ALLOWED_HOSTS = ['.crysflair.top']  # TODO 这是允许使用该网站资源的host列表吗？
+
+
+# 通用设置
+
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'ex#$@0ohqq1v7-20^%@#F((dh(2zwx3#%FGti9)(&cf5d=wb*2'
-# 'uex#$@0ohqq1v7-20ip7wy((dh(2zwx3qrduv01wy&cf5d=wb*'
-
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
-
 LOGIN_REDIRECT_URL = '/'
-
-ALLOWED_HOSTS = ['*',
-                 '127.0.0.1'
-                 ]
-
-MEDIA_URL = '/media/'       # 代表用户通过URL来访问这个本地地址的URL
+MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media/')       # 文件夹的位置
-
 
 # Application definition
 
@@ -115,18 +117,13 @@ AUTH_PASSWORD_VALIDATORS = [
 # https://docs.djangoproject.com/en/2.2/topics/i18n/
 
 LANGUAGE_CODE = 'en-us'
-
 TIME_ZONE = 'Asia/Shanghai'
-
 USE_I18N = True
-
 USE_L10N = True
-
 USE_TZ = True
 
 
 # Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/2.2/howto/static-files/
 
 STATIC_URL = '/static/'
 
@@ -137,12 +134,24 @@ STATICFILES_DIRS = (
 
 # email sending settings
 # SMTP服务器
-EMAIL_HOST = 'smtp.qq.com'
-EMAIL_HOST_USER = 'crysflair@foxmail.com'
-EMAIL_HOST_PASSWORD = 'dditpuktvdokdfbg'
-EMAIL_PORT = 25     # SMTP是基于文本的协议。在其之上指定了一条消息的一个或多个接收者，然后消息文本会被传输。SMTP使用TCP端口25。# 465?
-EMAIL_USE_TLS = True
-DEFAULT_FROM_EMAIL = 'Mysrio <crysflair@foxmail.com>'
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+
+EMAIL_HOST = 'smtp.exmail.qq.com'
+EMAIL_HOST_USER = 'noreply@crysflair.top'
+EMAIL_HOST_PASSWORD = 'K62vs73bpE6DPFhg'
+EMAIL_PORT = 465     # SMTP是基于文本的协议。在其之上指定了一条消息的一个或多个接收者，然后消息文本会被传输。SMTP使用TCP端口25。# 465?
+# EMAIL_USE_TLS = True
+EMAIL_USE_SSL = True
+DEFAULT_FROM_EMAIL = 'noreply<noreply@crysflair.top>'
+
+
+# EMAIL_HOST = 'smtp.qq.com'
+# EMAIL_HOST_USER = 'crysflair@foxmail.com'
+# EMAIL_HOST_PASSWORD = 'vwvopwagidkhdggg'
+# EMAIL_PORT = 25     # SMTP是基于文本的协议。在其之上指定了一条消息的一个或多个接收者，然后消息文本会被传输。SMTP使用TCP端口25。# 465?
+# EMAIL_USE_TLS = True
+# DEFAULT_FROM_EMAIL = 'Mysrio <crysflair@foxmail.com>'
+
 
 CKEDITOR_CONFIGS = {
     # django-ckeditor默认使用default配置
@@ -181,9 +190,9 @@ LOGGING = {
     'handlers': {
         'file': {
             'level': 'INFO',
-            'class': 'logging.handlers.TimedRotatingFileHandler',
-            'when': 'midnight',
-            'backupCount': 30,
+            'class': 'logging.FileHandler',
+            # 'when': 'midnight',
+            # 'backupCount': 30,
             'filename': os.path.join(BASE_DIR, 'logs/debug.log'),
         },
     },
