@@ -32,7 +32,7 @@ urlpatterns = [
     path('inbox/notifications/', include(notifications.urls, namespace='notifications')),
     path('notice/', include('notice.urls', namespace='notice')),
     path("robots.txt",TemplateView.as_view(template_name="robots.txt", content_type="text/plain")),
-
+    path("about.html",TemplateView.as_view(template_name="about.html")),
     ]
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

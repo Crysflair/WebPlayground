@@ -11,9 +11,21 @@
     <!-- 预留网站标题的位置 -->
     <title>{% block title %}{% endblock %}</title>
 
-    <!-- 引入bootstrap的css文件 -->
+    <!-- 引入css文件 -->
     <link rel="stylesheet" href="{% static 'bootstrap/css/bootstrap.min.css' %}">
     <link rel="stylesheet" href="{% static 'md_css/monokai.css' %}">
+
+    <!-- /all in one seo pack 来自 渡 StormSha-->
+    <link rel="stylesheet" href="{% static 'css/output.e875214a3225.css' %}" type="text/css">
+    <link rel="stylesheet" href="{% static 'css/output.83a7e8280e53.css' %}" type="text/css" media="all">
+    <link rel="stylesheet" href="{% static 'css/output.6a598ffdd222.css' %}" type="text/css" media="screen, print">
+    <link rel="stylesheet" href="{% static 'css/output.754215d0d32f.css' %}" type="text/css" media="print">
+    <link rel="stylesheet" href="{% static 'css/output.cea50499166a.css' %}" type="text/css" media="all">
+    <link rel="stylesheet" href="{% static 'css/output.af4555336800.css' %}" type="text/css">
+    <link rel="stylesheet" href="{% static 'css/output.de3f3f54226c.css' %}" type="text/css" media="all">
+
+    <script type="text/javascript" src="{% static 'js/output.214e8822bf81.js' %}"></script>
+
 
     <link rel="shortcut icon" href="{%  static 'favicon.ico' %}">
     <link rel="apple-touch-icon" sizes="180x180" href="{%  static 'favicon_io/apple-touch-icon.png' %}">
@@ -37,16 +49,16 @@
     </div>
     <!-- 引入注脚 -->
     {% include 'footer.html' %}
-    <!-- 增加样式 -->
-    <!-- bootstrap.js 依赖 jquery.js 和popper.js，因此在这里引入 -->
 
+
+    <!-- bootstrap.js 依赖 jquery.js 和popper.js，因此在这里引入 -->
     <script src="{% static 'jquery/jquery-3.4.1.js' %}"></script>
     <script src="{% static 'popper/popper.js' %}"></script>
     <script src="{% static 'bootstrap/js/bootstrap.min.js' %}"></script>
     <script src="{% static 'layer/layer.js' %}"></script>
     <script src="https://kit.fontawesome.com/313d0b5160.js" crossorigin="anonymous"></script>
 
-
+    <!-- 其他尾部元素和script -->
     {% include 'back_to_top_func.html' %}
 
     {% block script %}{% endblock script %}

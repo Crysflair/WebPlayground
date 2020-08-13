@@ -27,6 +27,11 @@
                 <div class="form-group">
                     <label for="body">文章正文</label>
                     <textarea type="text" class="form-control" id="body" name="body" rows="12"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="note">摘要</label>
+                    <textarea type="text" class="form-control" id="note" name="note" rows="3"></textarea>
                     <!-- <input>和<textarea>标签中的name=''属性指定了当前文本框提交的数据的名称，
                     它必须与表单类中的字段名称对应，否则服务器无法将字段和数据正确的对应起来。-->
                 </div>
@@ -52,13 +57,14 @@
                            class="form-control col-3"
                            id="tags"
                            name="tags"
-
                     >
                 </div>
 
                 <div class="form-group">
                     <label for="headingimg">标题图</label>
                     <input type="file" class="form-control-file"
+                           style="background: transparent;border: none;height: auto;
+                                  padding: 0px; margin-top: 10px;"
                            name="heading_img" id="headingimg">
                 </div>
 

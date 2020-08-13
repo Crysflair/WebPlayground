@@ -37,6 +37,7 @@ class ArticlePost(models.Model):
 
     title = models.CharField(max_length=100)
     body = models.TextField()
+    note = models.TextField(blank=True)
     created = models.DateTimeField(default=timezone.now)
     # 文章更新时间。参数 auto_now=True 指定每次数据更新时自动写入当前时间
     updated = models.DateTimeField(auto_now=True)

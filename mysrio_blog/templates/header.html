@@ -1,69 +1,74 @@
-<!-- 定义导航栏.标签内的class属性是Bootstrap样式的定义方法 -->
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-  <div class="container">
-
-    <!-- 导航栏商标 -->
-    <a class="navbar-brand" href="/">
-        Crysflair's Playground
-    </a>
-
-    <!-- 导航入口 -->
-    <div>
-      <ul class="navbar-nav">
-
-        <li class="nav-item">
-          <a class="nav-link" href="{% url 'article:article_create' %}">写文章</a>
-        </li>
-
-        <li class="nav-item">
-          <a class="nav-link" href="{% url 'article:article_list' %}">文章</a>
-        </li>
-
-        {% if user.is_authenticated %}
-        <!-- 如果用户已经登录，则显示用户名下拉框 is_authenticated是models.User类的属性，用于判断用户是否已通过身份验证-->
-        <li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                <!-- 用户名上方小红点 -->
-                {% if unread_count %}
-                    <svg viewBox="0 0 8 8"
-                         width="8px"
-                         height="8px">
-                        <circle cx="4"
-                                cy="4"
-                                r="4"
-                                fill="#ff6b6b"
-                                ></circle>
-                    </svg>
-                {% endif %}
-
-                {{ user.username }}
+<header id="header" class="header">
+    <div class="container-inner">
+        <!--头部-->
+        <div class="yusi-logo">
+            <a href="">
+                <h1>
+                    <span class="yusi-mono">Crysflair</span>
+                    <span class="yusi-bloger">无垠的旋律</span>
+                </h1>
             </a>
-            <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                <a class="dropdown-item" href='{% url "userprofile:edit" user.id %}'>个人信息</a>
-                <a class="dropdown-item" href='{% url "notice:list" %}'>通知
-                    {% if unread_count %}
-                    <span class="badge badge-danger">{{ unread_count }}</span>
+        </div>
+
+        <!--导航条-->
+        <div id="nav-header" class="navbar">
+            <ul class="nav">
+                <!--获取一级分类信息，假设一共只有2种column，分别为技术和生活。tag可以细分。部分tag被整合到导航条-->
+
+                <li id="menu-item-44" class="menu-item menu-item-type-custom menu-item-object-custom current-menu-item current_page_item menu-item-home menu-item-44">
+                    <a href="/">首页</a>
+                </li>
+
+                <li id="menu-item-14" class="menu-item menu-item-type-taxonomy menu-item-object-category  menu-item-has-children menu-item-14">
+                    <a href="{% url 'article:article_list' %}?&column=1">生活笔记</a>
+                </li>
+
+                <li id="menu-item-14" class="menu-item menu-item-type-taxonomy menu-item-object-category  menu-item-has-children menu-item-14">
+                    <a href="{% url 'article:article_list' %}?column=2">技术笔记</a>
+                    <ul class="sub-menu">
+                        <!--导航条二级分类渲染-->
+                            <li id="menu-item-19" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-19">
+                                <a href="{% url 'article:article_list' %}?column=2&tag=django">Django</a></li>
+                            <li id="menu-item-19" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-19">
+                                <a href="{% url 'article:article_list' %}?column=2&tag=flask">Flask</a></li>
+                            <li id="menu-item-19" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-19">
+                                <a href="{% url 'article:article_list' %}?column=2&tag=algorithm">算法</a></li>
+                    </ul>
+                </li>
+
+                <li id="menu-item-851" class="menu-item menu-item-type-post_type menu-item-object-page  menu-item-851">
+                    <a href="/about.html">关于自己</a>
+                </li>
+
+                <li id="menu-item-14" style="float:right;" class="menu-item menu-item-type-taxonomy menu-item-object-category  menu-item-has-children menu-item-14">
+                    {% if user.is_authenticated %}
+                        <a href="#">{{ user.username }}  <span style="font-size: xx-small">▼</span></a>
+                    <ul class="sub-menu">
+                        <!--导航条二级分类渲染-->
+                            <li id="menu-item-19" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-19">
+                                <a href='{% url "userprofile:edit" user.id %}'>个人信息</a></li>
+                            <li id="menu-item-19" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-19">
+                                <a href='{% url "notice:list" %}'>通知</a></li>
+                            <li id="menu-item-19" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-19">
+                                <a href="{% url 'article:article_create' %}">写文章</a></li>
+                            <li id="menu-item-19" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-19">
+                                <a href='{% url "userprofile:logout" %}'>退出登录</a></li>
+                            <li id="menu-item-19" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-19">
+                                <a href="#" onclick='user_delete()'>删除用户</a></li>
+                    </ul>
+                    {% else %}
+                    <a href="{% url 'userprofile:login' %}">登录</a>
                     {% endif %}
-                </a>
-                <a class="dropdown-item" href='{% url "userprofile:logout" %}'>退出登录</a>
-                <a class="dropdown-item" href="#" onclick='user_delete()'>删除用户</a>
-            </div>
-        </li>
-        <!-- 如果用户未登录，则显示 “登录” -->
-        {% else %}
-            <li class="nav-item">
-                <a class="nav-link" href="{% url 'userprofile:login' %}">登录</a>
-            </li>
-        <!-- if 语句在这里结束 -->
-        {% endif %}
+                </li>
 
-      </ul>
+
+
+
+            </ul>
+        </div>
+        <!--导航条结束-->
     </div>
-
-  </div>
-</nav>
-
-
+</header>
 
 
 <!-- 新增.如果已经登陆，可能会有删除用户的操作。为了安全要post。这里是隐藏的表单，和弹窗js函数 -->

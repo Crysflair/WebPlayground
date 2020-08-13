@@ -86,15 +86,18 @@ def article_create(request):
 
         # 如果接受到的post正确地创建了表单对象
         if article_post_form.is_valid():
-
+            # 通过form保存各种数据为新article
             new_article = article_post_form.save(commit=False)  # 暂时还不提交数据库, Form 里不全
+            # 设置它的关联外键author
             new_article.author = User.objects.get(id=request.user.id)
+            # 设置它的关联外键column
             column = request.POST['column']
             if column and column.isdigit():
                 new_article.column = ArticleColumn.objects.get(id=column)
             else:
                 new_article.column = None
-            new_article.save()  # 保存到数据库
+            # 保存到数据库
+            new_article.save()
             # 新增代码，保存 tags 的多对多关系,
             # 需要注意的是，如果提交的表单使用了commit=False选项，则必须调用save_m2m()才能正确的保存标签，就像普通的多对多关系一样。
             article_post_form.save_m2m()
@@ -138,6 +141,9 @@ def article_update(request, id):
         if article_post_form.is_valid():
             article.title = request.POST['title']
             article.body = request.POST['body']
+            article.note = request.POST['note']
+            if 'heading_img' in request.FILES:
+                article.heading_img = request.FILES["heading_img"]
             column = request.POST['column']
             if column and column.isdigit():
                 article.column = ArticleColumn.objects.get(id=column)
@@ -145,7 +151,6 @@ def article_update(request, id):
                 article.column = None
             if request.POST['tags']:
                 article.tags.set(*_parse_tags(request.POST['tags']), clear=True)
-
             article.save()
 
             return redirect("article:article_detail", id=id)

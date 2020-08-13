@@ -11,7 +11,14 @@
             <br>
             {% if profile.avatar %}
             <div class="col-md-4">头像</div>
-                <img src="{{ profile.avatar.url }}" style="max-width: 20%; border-radius: 15%;" class="col-md-4">
+                <img src="{{ profile.avatar.url }}"
+                     style="display:block;
+                            width:150px;
+                            height:150px;
+                            padding: 0px;
+                            margin:15px;
+                            object-fit:cover;"
+                     class="thumb img-crop col-md-4">
             {% else %}
                 <h5 class="col-md-4">暂无头像</h5>
             {% endif %}
@@ -21,26 +28,27 @@
             <form method="post" action="." id="profile" enctype="multipart/form-data">
                 {% csrf_token %}
 
-                <!-- avatar -->
                 <div class="form-group col-md-4">
                     <label for="avatar">上传头像</label>
-                    <input type="file" class="form-control-file" name="avatar" id="avatar" accept="image/*">
+                    <input type="file"
+                           style="background: transparent;border: none;height: auto;
+                                  padding: 0px; margin-top: 10px;"
+                           name="avatar" id="avatar" accept="image/*">
                 </div>
 
                 <!-- phone -->
                 <div class="form-group col-md-4">
                     <label for="phone">电话</label>
-                    <input type="text" class="form-control"
-                           id="phone" name="phone" value="{{ profile.phone }}">
+                    <input type="text" class="form-control" id="phone" name="phone" value="{{ profile.phone }}">
                 </div>
                 <!-- bio -->
                 <div class="form-group col-md-4">
                     <label for="bio">简介</label>
-                    <textarea type="text" class="form-control"
-                              id="bio" name="bio" rows="12">{{ profile.bio }}</textarea>
+                    <textarea type="text" class="form-control" id="bio" name="bio" rows="12">{{ profile.bio }}</textarea>
                 </div>
                 <!-- 提交按钮 -->
-                <button onclick="edit_profile({{ user.id }})" class="btn btn-primary">提交</button>
+                <button type="submit"
+                        class="btn btn-primary" style="margin: 15px">提交</button>
             </form>
         </div>
     </div>
@@ -49,12 +57,3 @@
 
 {% endblock content %}
 
-{% block script %}
-<script src="{% static 'csrf.js' %}"></script>
-<script>
-    function edit_profile(user_id) {
-        let $form = $("#profile");
-
-    }
-</script>
-{% endblock script %}

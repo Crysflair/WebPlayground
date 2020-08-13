@@ -78,11 +78,7 @@ def user_delete(request, id):
 def profile_edit(request, id):
     user = User.objects.get(id=id)
 
-    # 旧代码
-    # profile = Profile.objects.get(user_id=id)
-    # user_id 是 OneToOneField 自动生成的字段
-
-    # 修改后的代码: 根据需要创建或提取profile
+    # 修改后的代码: 根据需要创建或提取profile，避免后台单独操作的问题
     if Profile.objects.filter(user_id=id).exists():
         profile = Profile.objects.get(user_id=id)
     else:

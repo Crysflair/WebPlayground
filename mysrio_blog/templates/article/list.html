@@ -4,18 +4,25 @@
 
 <!-- 写入 base.html 中定义的 title 进入一个块 -->
 {% block title %}
-    文章列表首页
+    文章列表
 {% endblock title %}
 
 <!-- 写入 base.html 中定义的 content -->
 {% block content %}
 
 
+<style>
+    .img-crop {
+        width: 200px;
+        height: 120px;
+        object-fit: cover;
+    }
+</style>
+<section class="container">
+    <nav aria-label="breadcrumb" style="margin-top: 20px">
 
-<!-- 定义放置文章标题的div容器 -->
-<div class="container">
-    <nav aria-label="breadcrumb">
-        <ol class="breadcrumb">
+        <ol class="breadcrumb" style="display: block">
+
             <li class="breadcrumb-item">
                 {% if order != "normal" %}
                 <a href="{% url 'article:article_list' %}?search={{ search }}">
@@ -34,130 +41,119 @@
                 最热
                 {% endif %}
             </li>
+
+                <form class="form-inline" style="float: right">
+                    <label class="sr-only">content</label>
+
+                    <input type="text"
+                        class="search inline"
+                        name="search"
+                        placeholder="搜索文章..."
+                        required
+                    >
+                    <i class="fa fa-search" style="
+                    margin-bottom: 10px;
+                    margin-left: 5px;
+                    margin-right: -8px;"></i>
+                </form>
+
         </ol>
+
     </nav>
-    <!-- 新增，搜索栏，这是一个表单 以GET请求提交search参数；required属性阻止用户提交空白文本 -->
-    <div class="row">
-            <div class="col-auto mr-auto">
-            <form class="form-inline" >
-                <label class="sr-only">content</label>
-                <input type="text"
-                    class="form-control mb-2 mr-sm-2"
-                    name="search"
-                    placeholder="搜索文章..."
-                    required
-                >
-            </form>
-            </div>
-    </div>
-    {% if search %}
-        {% if articles %}
-            <h4><span style="color: red">"{{ search }}"</span>的搜索结果如下：</h4>
-            <hr>
-        {% else %}
-            <h4>暂无<span style="color: red">"{{ search }}"</span>有关的文章。</h4>
-            <hr>
-        {% endif %}
-    {% endif %}
 
-    {% for article in articles %}
-    <hr />
-    <div class="row mt-2">
+    <div class="content-wrap">
 
+    <!-- 开始填文章格子 -->
 
-
-
-        <!-- 横条标题，宽度12col -->
-        <div class="col-9">
-
-            <!-- 标题 -->
-            <h4>
-                <b>
-                <a href="{% url 'article:article_detail' article.id %}"
-                   style="color: black;"
-                >
-                    {{ article.title }}
-                </a>
-                </b>
-            </h4>
-
-            <!-- 栏目&标签 -->
+        {% for article in articles %}
+        <article class="excerpt">
+            <header>
             {% if article.column %}
-                <a href="{% url 'article:article_list' %}?column={{ article.column.id }}"
-                   role="button"
-                   class="btn btn-sm mb-2
-                        {% if article.column.title == 'Algorithm' %}
-                            btn-success
-                        {% elif article.column.title == 'Ideolist' %}
-                            btn-danger
-                        {% else %}
-                            btn-warning
-                        {% endif %}
-                   "
-                >
-                    {{ article.column }}
-                </a>
+                <a class="label label-important" style="color: white">
+                    {{ article.column }}<i class="label-arrow"></i></a>
             {% endif %}
-            {% for tag in article.tags.all %}
+                <h2><a target="_blank" href="{% url 'article:article_detail' article.id %}" title="{{ article.title }}">
+                    {{ article.title }}
+                </a></h2>
+                <div style="float: right;">
+                {% for tag in article.tags.all %}
                 <a href="{% url 'article:article_list' %}?tag={{ tag }}"
                    class="badge badge-secondary"
                 >
                     {{ tag }}
                 </a>
-            {% endfor %}
+                {% endfor %}
+                </div>
+            </header>
 
-            <!-- 摘要 -->
-            <div>
-            <p style="color: gray;">
-                {{ article.body|slice:'100' }}...
-            </p>
+            {% if article.heading_img %}
+            <div class="focus">
+                <a target="_blank" href="{% url 'article:article_detail' article.id %}">
+                    <img class="thumb img-crop" width="200" height="123"
+                         src="{{ article.heading_img.url | default_if_none:'#' }}"
+                         alt="{{ article.title }}"/>
+                </a>
             </div>
-
-
-            <p><small>
-            <!-- 附加信息 -->
-            <span style="color: #006ac9;">
-                <i class="fas fa-eye" style="color: lightskyblue;"></i>
-                {{ article.total_views }} &nbsp;&nbsp;&nbsp;
-            </span>
-            <span style="color: #51a900; ">
-                <i class="fas fa-comments" style="color: yellowgreen;"></i>
-                {{ article.created|date:'Y-m-d' }} &nbsp;&nbsp;&nbsp;
-            </span>
-            <span style="color: #df5c67;">
-                <i class="fas fa-clock" style="color: pink;"></i>
-                {{ article.updated|date:'Y-m-d' }}
-            </span>
-            </small>
+            {% endif %}
+            <span class="note"> {{ article.note | default:article.body|slice:'300' }} </span>
+            <p class="auth-span">
+                <span class="muted"><i class="fa fa-user"></i> {{ article.author }}</span>
+                <span class="muted"><i class="fa fa-clock-o"></i> {{ article.updated|date:'Y-m-d' }}</span>
+                <span class="muted"><i class="fa fa-eye"></i> {{ article.total_views }} 浏览</span>
             </p>
+          </article>
 
 
-        </div>
+{#    <div class="row mt-2">#}
+{#        <!-- 横条标题，宽度12col -->#}
+{#        <div class="col-9">#}
+{##}
+{#            <!-- 标题 -->#}
+{#            <h4>#}
+{#                <b>#}
+{#                <a href="{% url 'article:article_detail' article.id %}"#}
+{#                   style="color: black;"#}
+{#                >#}
+{#                    {{ article.title }}#}
+{#                </a>#}
+{#                </b>#}
+{#            </h4>#}
+{##}
+{#            <!-- 栏目&标签 -->#}
+{#            {% if article.column %}#}
+{#                <a href="{% url 'article:article_list' %}?column={{ article.column.id }}"#}
+{#                   role="button"#}
+{#                   class="btn btn-sm mb-2#}
+{#                        {% if article.column.title == 'Algorithm' %}#}
+{#                            btn-success#}
+{#                        {% elif article.column.title == 'Ideolist' %}#}
+{#                            btn-danger#}
+{#                        {% else %}#}
+{#                            btn-warning#}
+{#                        {% endif %}#}
+{#                   "#}
+{#                >#}
+{#                    {{ article.column }}#}
+{#                </a>#}
+{#            {% endif %}#}
+{#            {% for tag in article.tags.all %}#}
+{#                <a href="{% url 'article:article_list' %}?tag={{ tag }}"#}
+{#                   class="badge badge-secondary"#}
+{#                >#}
+{#                    {{ tag }}#}
+{#                </a>#}
+{#            {% endfor %}#}
 
-        {% if article.heading_img %}
-        <div class="col-3">
-            <div style="max-height:120px; overflow-y:hidden; border-radius: 20px;">
-            <img src="{{ article.heading_img.url }}"
-                 alt="heading_img"
-                 style="max-width:100%;"
-
-            >
-            </div>
-        </div>
-        {% endif %}
-
-
-    </div>
 
     {% endfor %}
+    </div>
 
 
 
-
-</div>
+</section>
 
 <!-- 页码导航 -->
-<div class="pagination">
+<div style="text-align: center">
     <div class="m-auto">
         <span class="step-links">
             <!-- 如果不是第一页，则显示上翻按钮 -->
