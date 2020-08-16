@@ -19,7 +19,6 @@ class CommentNoticeListView(LoginRequiredMixin, ListView):
         return self.request.user.notifications.unread()
 
     def get(self, request):
-        print("here")
         context = {CommentNoticeListView.context_object_name: self.get_queryset()}
         return render(request, CommentNoticeListView.template_name, context)
 

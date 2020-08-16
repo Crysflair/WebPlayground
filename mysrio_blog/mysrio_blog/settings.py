@@ -12,8 +12,10 @@ https://docs.djangoproject.com/en/2.2/ref/settings/
 
 import os
 
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
 # 自己设定的本地和部署config变量
-config_mode = 'debug'
+config_mode = 'product'
 assert config_mode in ('debug', 'product')
 
 if config_mode == 'debug':
@@ -22,14 +24,14 @@ if config_mode == 'debug':
     ALLOWED_HOSTS = []
 else:
     # set secret key on the server
+    SECRET_KEY = "!%@#$%@@#^@TRFE]Av]\.f'gw]-(+_*(_+214313$%#^247n)_"
     DEBUG = False
-    ALLOWED_HOSTS = ['.crysflair.top']  # TODO 这是允许使用该网站资源的host列表吗？
-
+    ALLOWED_HOSTS = ['.crysflair.top', '47.94.217.138']  # TODO 这是允许使用该网站资源的host列表吗？
+    STATIC_ROOT = os.path.join(BASE_DIR, 'collected_static')
 
 # 通用设置
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 LOGIN_REDIRECT_URL = '/'
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media/')       # 文件夹的位置
