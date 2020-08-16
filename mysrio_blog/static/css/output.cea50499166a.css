@@ -2137,8 +2137,8 @@ a.text-success:focus, a.text-success:hover {
 }
 
 h1, h2, h3, h4, h5 {
-    margin: 5px 0;
     font-weight: bold;
+    margin: revert;
     line-height: 35px;
     color: inherit;
     text-rendering: optimizelegibility
