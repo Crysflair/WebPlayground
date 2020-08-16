@@ -78,6 +78,9 @@ def article_create(request):
     :param request:
     :return:
     """
+    if not request.user.is_staff:
+        return HttpResponse("抱歉，您目前没有权限发表文章")
+
     if request.method == "POST":
         # Form实例可以绑定到数据，也可以不绑定数据。
         # 如果绑定到数据，就能够验证该数据并将表单呈现为HTML并显示数据
