@@ -11,20 +11,19 @@ https://docs.djangoproject.com/en/2.2/ref/settings/
 """
 
 import os
+import config
+# 使用不上传github的config文件记录信息。并更改原密码。
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-# 自己设定的本地和部署config变量
-config_mode = 'product'
-assert config_mode in ('debug', 'product')
 
-if config_mode == 'debug':
+if config.MODE == 'debug':
     SECRET_KEY = 'easy_key'
     DEBUG = True
     ALLOWED_HOSTS = []
 else:
     # set secret key on the server
-    SECRET_KEY = "!%@#$%@@#^@TRFE]Av]\.f'gw]-(+_*(_+214313$%#^247n)_"
+    SECRET_KEY = config.SECRET_KEY
     DEBUG = False
     ALLOWED_HOSTS = ['.crysflair.top', '47.94.217.138']  # TODO 这是允许使用该网站资源的host列表吗？
     STATIC_ROOT = os.path.join(BASE_DIR, 'collected_static')
@@ -140,19 +139,11 @@ EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 
 EMAIL_HOST = 'smtp.exmail.qq.com'
 EMAIL_HOST_USER = 'noreply@crysflair.top'
-EMAIL_HOST_PASSWORD = 'K62vs73bpE6DPFhg'
+EMAIL_HOST_PASSWORD = config.EMAIL_HOST_PASSWORD
 EMAIL_PORT = 465     # SMTP是基于文本的协议。在其之上指定了一条消息的一个或多个接收者，然后消息文本会被传输。SMTP使用TCP端口25。# 465?
 # EMAIL_USE_TLS = True
 EMAIL_USE_SSL = True
 DEFAULT_FROM_EMAIL = 'noreply<noreply@crysflair.top>'
-
-
-# EMAIL_HOST = 'smtp.qq.com'
-# EMAIL_HOST_USER = 'crysflair@foxmail.com'
-# EMAIL_HOST_PASSWORD = 'vwvopwagidkhdggg'
-# EMAIL_PORT = 25     # SMTP是基于文本的协议。在其之上指定了一条消息的一个或多个接收者，然后消息文本会被传输。SMTP使用TCP端口25。# 465?
-# EMAIL_USE_TLS = True
-# DEFAULT_FROM_EMAIL = 'Mysrio <crysflair@foxmail.com>'
 
 
 CKEDITOR_CONFIGS = {
