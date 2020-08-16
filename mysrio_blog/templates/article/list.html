@@ -103,48 +103,6 @@
             </p>
           </article>
 
-
-{#    <div class="row mt-2">#}
-{#        <!-- 横条标题，宽度12col -->#}
-{#        <div class="col-9">#}
-{##}
-{#            <!-- 标题 -->#}
-{#            <h4>#}
-{#                <b>#}
-{#                <a href="{% url 'article:article_detail' article.id %}"#}
-{#                   style="color: black;"#}
-{#                >#}
-{#                    {{ article.title }}#}
-{#                </a>#}
-{#                </b>#}
-{#            </h4>#}
-{##}
-{#            <!-- 栏目&标签 -->#}
-{#            {% if article.column %}#}
-{#                <a href="{% url 'article:article_list' %}?column={{ article.column.id }}"#}
-{#                   role="button"#}
-{#                   class="btn btn-sm mb-2#}
-{#                        {% if article.column.title == 'Algorithm' %}#}
-{#                            btn-success#}
-{#                        {% elif article.column.title == 'Ideolist' %}#}
-{#                            btn-danger#}
-{#                        {% else %}#}
-{#                            btn-warning#}
-{#                        {% endif %}#}
-{#                   "#}
-{#                >#}
-{#                    {{ article.column }}#}
-{#                </a>#}
-{#            {% endif %}#}
-{#            {% for tag in article.tags.all %}#}
-{#                <a href="{% url 'article:article_list' %}?tag={{ tag }}"#}
-{#                   class="badge badge-secondary"#}
-{#                >#}
-{#                    {{ tag }}#}
-{#                </a>#}
-{#            {% endfor %}#}
-
-
     {% endfor %}
     </div>
 
@@ -152,6 +110,7 @@
 
 </section>
 
+<br/><br/>
 <!-- 页码导航 -->
 <div style="text-align: center">
     <div class="m-auto">
@@ -192,7 +151,7 @@
         </span>
     </div>
 </div>
-
+<br/><br/><br/>
 
 
 
