@@ -21,12 +21,29 @@ if config.MODE == 'debug':
     SECRET_KEY = 'easy_key'
     DEBUG = True
     ALLOWED_HOSTS = []
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        }
+    }
 else:
     # set secret key on the server
     SECRET_KEY = config.SECRET_KEY
     DEBUG = False
-    ALLOWED_HOSTS = ['.crysflair.top', '47.94.217.138', '127.0.0.1']
+    ALLOWED_HOSTS = ['.crysflair.top', '124.71.71.65', '127.0.0.1']
     STATIC_ROOT = os.path.join(BASE_DIR, 'collected_static')
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.mysql',  # 数据库引擎
+            'NAME': 'mysrio',  # 数据库名，先前创建的
+            'USER': config.DBUSER,  # 用户名，可以自己创建用户
+            'PASSWORD': config.DBPW,  # 密码
+            'HOST': 'localhost',  # mysql服务所在的主机ip
+            'PORT': '3306',  # mysql服务端口
+        },
+    }
+
 
 # 通用设置
 
@@ -86,13 +103,6 @@ WSGI_APPLICATION = 'mysrio_blog.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/2.2/ref/settings/#databases
-
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-    }
-}
 
 
 # Password validation
