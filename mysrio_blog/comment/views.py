@@ -37,7 +37,7 @@ def post_comment(request, article_id, parent_comment_id=None):
                 new_comment.save()
                 recipient = article.author
 
-            # 通知
+            # 给其他用户发送通知
             notify.send(
                 request.user,
                 recipient=recipient,
@@ -45,6 +45,7 @@ def post_comment(request, article_id, parent_comment_id=None):
                 target=article,
                 action_object=new_comment,
             )
+            # 任何非管理员回复了文章 都给所有管理员发通知
             if not request.user.is_superuser:
                 notify.send(
                     request.user,

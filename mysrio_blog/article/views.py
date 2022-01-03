@@ -12,33 +12,31 @@ from taggit.utils import _parse_tags
 
 
 def article_list(request):
-    # 排序，需要GET请求中就已经给出order。GET请求也是可以传递多个参数的，如 ?a=1&b=2，参数间用&隔开
+    # 从GET请求中获得形如?a=1&b=2的参数
     search = request.GET.get('search')
     order = request.GET.get('order')
     column = request.GET.get('column')
     tag = request.GET.get('tag')
-
-    articles = ArticlePost.objects.all()
     if not order:
         order = 'normal'
-    if not search:
-        search = ''     # 如果用户没有搜索操作，则search = request.GET.get('search')会使得search = None，而这个值传递到模板中会错误地转换成"None"字符串！
+    if not search:  # 小心None被转化成'None'
+        search = ''
     if not tag:
         tag = ''
 
+    # 构建Query
+    articles = ArticlePost.objects.all()
     if search:
-        articles = articles.filter(
-            Q(title__icontains=search) |
-            Q(body__icontains=search))
+        articles = articles.filter(Q(title__icontains=search) | Q(body__icontains=search))
     if order == 'total_views':
-        articles = articles.order_by('-total_views')  # ‘total_views’为正序，‘-total_views’为逆序
+        articles = articles.order_by('-total_views')  # ‘total_views’为正序，‘-total_views’为逆序。
     if column and column.isdigit():
-        articles = articles.filter(column=column)
+        articles = articles.filter(column=column)     # 按栏目编号过滤。判定格式避免有人故意捣乱填非法值。
     if tag:
         articles = articles.filter(tags__name__in=[tag])
 
-
-    paginator = Paginator(articles, 6)
+    # 分页
+    paginator = Paginator(articles, 10)
     page = request.GET.get('page')
     articles = paginator.get_page(page)
 
@@ -52,20 +50,25 @@ def article_list(request):
 
 
 def article_detail(request, id):
+    # 获取文章
     article = ArticlePost.objects.get(id=id)
+
+    # 每次请求增加一次浏览计数
     article.total_views += 1
-    article.save(update_fields=['total_views'])  # update_fields=[]指定了数据库只更新total_views字段，优化执行效率。
+    article.save(update_fields=['total_views'])  # update_fields=[]指定了数据库只更新total_views字段。优化执行效率。
+
+    # 获取评论
+    comments = Comment.objects.filter(article=id)
+
+    # 渲染markdown
     md = markdown.Markdown(
         extensions=[
             "markdown.extensions.extra",
             "markdown.extensions.codehilite",
-            'markdown.extensions.toc',  # 目录扩展
+            'markdown.extensions.toc',           # 目录扩展
         ]
     )
-    # 用convert()方法将正文渲染为html页面。通过md.toc将目录传递给模板。
     article.body = md.convert(article.body)
-
-    comments = Comment.objects.filter(article=id)
     context = {'article': article, 'toc': md.toc, 'comments': comments}
     return render(request, 'article/detail.html', context)
 
@@ -73,43 +76,36 @@ def article_detail(request, id):
 @login_required(login_url='/userprofile/login/')
 def article_create(request):
     """
-    created和updated字段为自动生成，不需要填入；
-    剩下的title和body就是*表单*需要填入的内容了
-    :param request:
-    :return:
+    创建文章。
+    created和updated字段为自动生成，不需要填入；剩下的title和body是*表单*需要填入的内容了
     """
     if not request.user.is_staff:
         return HttpResponse("抱歉，您目前没有权限发表文章")
 
     if request.method == "POST":
-        # Form实例可以绑定到数据，也可以不绑定数据。
-        # 如果绑定到数据，就能够验证该数据并将表单呈现为HTML并显示数据
+        # 把request中的数据填到Form实例中便于自动验证
+        article_post_form = ArticlePostForm(data=request.POST, files=request.FILES)
 
-        article_post_form = ArticlePostForm(data=request.POST, files=request.FILES)  # data: dict
-
-        # 如果接受到的post正确地创建了表单对象
         if article_post_form.is_valid():
-            # 通过form保存各种数据为新article
-            new_article = article_post_form.save(commit=False)  # 暂时还不提交数据库, Form 里不全
-            # 设置它的关联外键author
-            new_article.author = User.objects.get(id=request.user.id)
-            # 设置它的关联外键column
-            column = request.POST['column']
+            # 从form中形成article对象。暂不提交。
+            # save(): Save this form's self.instance object if commit=True.
+            # Otherwise, add a save_m2m() method to the form after the instance is saved manually.
+            new_article = article_post_form.save(commit=False)
+            new_article.author = User.objects.get(id=request.user.id)       # 设置它的关联外键author
+            column = request.POST['column']                                 # 设置它的关联外键column
             if column and column.isdigit():
                 new_article.column = ArticleColumn.objects.get(id=column)
             else:
                 new_article.column = None
-            # 保存到数据库
-            new_article.save()
-            # 新增代码，保存 tags 的多对多关系,
-            # 需要注意的是，如果提交的表单使用了commit=False选项，则必须调用save_m2m()才能正确的保存标签，就像普通的多对多关系一样。
-            article_post_form.save_m2m()
 
-            return redirect("article:article_list")  # redirect可通过url地址的名字，反向解析到对应的url。
+            new_article.save()                  # 保存到数据库
+            article_post_form.save_m2m()        # 需要手动保存tags的多对多关系（因为之前commit=False）
+
+            return redirect("article:article_list")     # redirect可通过url地址的名字，反向解析到对应的url
         else:
             return HttpResponse("表单内容有误，请重新填写")
     else:
-        # GET, 创建空表单类实例，render呈现
+        # GET 创建空表单类实例 render呈现
         article_post_form = ArticlePostForm()
         columns = ArticleColumn.objects.all()
         context = {'article_post_form': article_post_form, 'columns': columns}
@@ -131,9 +127,7 @@ def article_safe_delete(request, id):
 @login_required(login_url='/userprofile/login/')
 def article_update(request, id):
     """
-    更新文章的视图函数
-    通过POST方法提交表单，更新title、body字段
-    id: article id
+    更新文章
     """
     article = ArticlePost.objects.get(id=id)
     if article.author.id != request.user.id:
@@ -160,15 +154,14 @@ def article_update(request, id):
         else:
             return HttpResponse("表单内容有误，更新文章失败")
     else:
+        # GET方法 将原内容文章传递进去
         article_post_form = ArticlePostForm()
         columns = ArticleColumn.objects.all()
-        # 赋值上下文，将原内容 article 文章对象也传递进去
         context = {'article': article,
                    'article_post_form': article_post_form,
                    'tags': article.tags.names(),
                    'columns': columns,
                    }
-        # 将响应返回到模板中
         return render(request, 'article/update.html', context)
 
 

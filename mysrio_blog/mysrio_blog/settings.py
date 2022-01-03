@@ -25,13 +25,13 @@ else:
     # set secret key on the server
     SECRET_KEY = config.SECRET_KEY
     DEBUG = False
-    ALLOWED_HOSTS = ['.crysflair.top', '47.94.217.138']  # TODO 这是允许使用该网站资源的host列表吗？
+    ALLOWED_HOSTS = ['.crysflair.top', '47.94.217.138', '127.0.0.1']
     STATIC_ROOT = os.path.join(BASE_DIR, 'collected_static')
 
 # 通用设置
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
-LOGIN_REDIRECT_URL = '/'
+LOGIN_REDIRECT_URL = '/'    # 登录之后重定向的地方，但咱们没有用内置的login view函数，而是自己实现的redirect所以这行应该没用
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media/')       # 文件夹的位置
 
