@@ -47,11 +47,11 @@ INSTALLED_APPS = [
     'article',
     'userprofile',
     'password_reset',
-    'comment',
+    # 'comment',
     'taggit',
     'ckeditor',
     'mptt',
-    'notifications',
+    # 'notifications',
 ]
 
 MIDDLEWARE = [

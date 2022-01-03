@@ -28,7 +28,7 @@ urlpatterns = [
     path('article/', include('article.urls', namespace='article')),
     path('userprofile/', include('userprofile.urls', namespace='userprofile')),
     path('password-reset/', include('password_reset.urls')),
-    path('comment/', include('comment.urls', namespace='comment')),
+    # path('comment/', include('comment.urls', namespace='comment')),
     path('inbox/notifications/', include(notifications.urls, namespace='notifications')),
     path('notice/', include('notice.urls', namespace='notice')),
     path("robots.txt",TemplateView.as_view(template_name="robots.txt", content_type="text/plain")),

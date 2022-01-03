@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect
 from django.http import HttpResponse
 from .models import ArticlePost,ArticleColumn
-from comment.models import Comment
+# from comment.models import Comment
 from .forms import ArticlePostForm
 from django.contrib.auth.models import User
 import markdown
@@ -58,7 +58,7 @@ def article_detail(request, id):
     article.save(update_fields=['total_views'])  # update_fields=[]指定了数据库只更新total_views字段。优化执行效率。
 
     # 获取评论
-    comments = Comment.objects.filter(article=id)
+    # comments = Comment.objects.filter(article=id)
 
     # 渲染markdown
     md = markdown.Markdown(
@@ -69,7 +69,7 @@ def article_detail(request, id):
         ]
     )
     article.body = md.convert(article.body)
-    context = {'article': article, 'toc': md.toc, 'comments': comments}
+    context = {'article': article, 'toc': md.toc}
     return render(request, 'article/detail.html', context)
 
 

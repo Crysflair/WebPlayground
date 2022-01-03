@@ -39,22 +39,7 @@ def user_logout(request):
 
 
 def user_register(request):
-    if request.method == 'POST':
-        user_register_form = UserRegisterForm(data=request.POST)
-        if user_register_form.is_valid():
-            new_user = user_register_form.save(commit=False)
-            new_user.set_password(user_register_form.cleaned_data['password'])
-            new_user.save()
-            login(request, new_user)    # 登录状态
-            return redirect("article:article_list")
-        else:
-            return HttpResponse("注册表单输入有误，请重新输入")
-    elif request.method == 'GET':
-        user_register_form = UserRegisterForm()
-        context = {"form": user_register_form}
-        return render(request, "userprofile/user_register.html", context)
-    else:
-        return HttpResponse("请使用GET或POST请求数据！")
+    return HttpResponse("目前不开放新用户注册哦！")
 
 
 # 如果未登录则不执行函数，将页面重定向到/userprofile/login/
